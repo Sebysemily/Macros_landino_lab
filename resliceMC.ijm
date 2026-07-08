@@ -3,6 +3,9 @@
  * The file must be associated with a save path before running.
  */
 
+// 1. Input dir to iterate in the folder
+basedir = "<path to your folder>"; //change this to the path of the folder you want to iterate through
+output  = "<path to your output folder>"; //change this to the path of the folder you want to save the resliced images to
 fileName = getInfo("image.title") ; 	//saves image name for future use
 //dotIndex = indexOf(fileName, ".");  	//this and the following line get the file name without the extension
 //fileNameWithoutExtension = substring(fileName, 0, dotIndex);//this and the above line get the file name without the extension
@@ -26,54 +29,58 @@ projectionAnswer = Dialog.getChoice();				//saves the answer
 rollingAverageLength = getNumber("how many frames would you like to rolling project?", 20) ;	
 //Asks the user to input the number of frames they would like to create a rolling z projection with
 
-counter = 1 //creates a counter variable that starts as 1 and increases by 1 with every trip through the loop
-while (counter <= channels) {  //runs a loop as long as the there are still channels left to duplicate
-	Stack.setChannel(counter); //moves to channel x (whatever the x number through the loop is)
-	run("Duplicate...", "title=Channel_" + counter + " duplicate channels=" + counter);
-	//duplicates the active channel and renames it "Channel_X"
-	run("Reslice [/]...", "output=0.500 start=" + resliceAnswer + " avoid");
-	//reslices the duplicated selection either from the right or the left depending on the user answer
-	run("Running ZProjector2", "project=" + rollingAverageLength+ " projection=[" + projectionAnswer + "]");
-	//creates a running z-projection based on the user answers above
-	rename("C" + counter);
-	//renames the projected kymograph
-	selectWindow("Channel_" + counter);
-	close(); //closes the duplicated channel selection
-	selectWindow("Reslice of Channel_" + counter);
-	close(); //closes the non-projected kymograph
-	selectWindow(fileName);
-	counter += 1; //loops through again
+// 2.For loop to iterate trough a folder
+filelist = getFileList(basedir); //creates a list of all the files in the specified folder
+for ( i =0; i < fileList.length; i++) {
+  counter = 1 //creates a counter variable that starts as 1 and increases by 1 with every trip through the loop
+  while (counter <= channels) {  //runs a loop as long as the there are still channels left to duplicate
+    Stack.setChannel(counter); //moves to channel x (whatever the x number through the loop is)
+    run("Duplicate...", "title=Channel_" + counter + " duplicate channels=" + counter);
+    //duplicates the active channel and renames it "Channel_X"
+    run("Reslice [/]...", "output=0.500 start=" + resliceAnswer + " avoid");
+    //reslices the duplicated selection either from the right or the left depending on the user answer
+    run("Running ZProjector2", "project=" + rollingAverageLength+ " projection=[" + projectionAnswer + "]");
+    //creates a running z-projection based on the user answers above
+    rename("C" + counter);
+    //renames the projected kymograph
+    selectWindow("Channel_" + counter);
+    close(); //closes the duplicated channel selection
+    selectWindow("Reslice of Channel_" + counter);
+    close(); //closes the non-projected kymograph
+    selectWindow(fileName);
+    counter += 1; //loops through again
+  }
+
+  if (channels == 2) {
+    run("Merge Channels...", "c1=C1 c2=C2 create");
+    colors_threeChannel = newArray("Green", "Magenta");
+    for (i=0; i<colors_threeChannel.length; i++) { // one loop for every item in the specified array
+      Stack.setChannel(i+1);
+      //run("Enhance Contrast", "saturated=" + percentSaturation);
+      run(colors_threeChannel[i]); // sets the LUT based on the specified array
+      }
+  } //merges two channels together
+
+  if (channels == 3) {
+    run("Merge Channels...", "c1=C1 c2=C2 c3=C3 create");
+    colors_threeChannel = newArray("Green", "Magenta", "Grays");
+    for (i=0; i<colors_threeChannel.length; i++) { // one loop for every item in the specified array
+      Stack.setChannel(i+1);
+      //run("Enhance Contrast", "saturated=" + percentSaturation);
+      run(colors_threeChannel[i]); // sets the LUT based on the specified array
+      }
+  } //merges 3 channels together
+
+  if (channels == 4) {
+    run("Merge Channels...", "c1=C1 c2=C2 c3=C3 c4=C4 create");
+  } //merges 4 channels together
+  //run("Scale...", "x=1.0 y=3 z=1.0 width=409 height=180 depth=409 interpolation=Bicubic average create");
+  setSlice(230);		//if desired, move to the middle of the stack before auto scaling
+  Stack.setChannel(1);
+  resetMinAndMax();
+  Stack.setChannel(2);
+  resetMinAndMax();
+  Stack.setChannel(3);
+  resetMinAndMax();
+  //rename(newFileName);
 }
-
-if (channels == 2) {
-	run("Merge Channels...", "c1=C1 c2=C2 create");
-	colors_threeChannel = newArray("Green", "Magenta");
-	for (i=0; i<colors_threeChannel.length; i++) { // one loop for every item in the specified array
-		Stack.setChannel(i+1);
-		//run("Enhance Contrast", "saturated=" + percentSaturation);
-		run(colors_threeChannel[i]); // sets the LUT based on the specified array
-		}
-} //merges two channels together
-
-if (channels == 3) {
-	run("Merge Channels...", "c1=C1 c2=C2 c3=C3 create");
-	colors_threeChannel = newArray("Green", "Magenta", "Grays");
-	for (i=0; i<colors_threeChannel.length; i++) { // one loop for every item in the specified array
-		Stack.setChannel(i+1);
-		//run("Enhance Contrast", "saturated=" + percentSaturation);
-		run(colors_threeChannel[i]); // sets the LUT based on the specified array
-		}
-} //merges 3 channels together
-
-if (channels == 4) {
-	run("Merge Channels...", "c1=C1 c2=C2 c3=C3 c4=C4 create");
-} //merges 4 channels together
-//run("Scale...", "x=1.0 y=3 z=1.0 width=409 height=180 depth=409 interpolation=Bicubic average create");
-setSlice(230);		//if desired, move to the middle of the stack before auto scaling
-Stack.setChannel(1);
-resetMinAndMax();
-Stack.setChannel(2);
-resetMinAndMax();
-Stack.setChannel(3);
-resetMinAndMax();
-//rename(newFileName);
