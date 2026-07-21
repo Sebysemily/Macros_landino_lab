@@ -1,5 +1,5 @@
 //directories
-day = "2026_7_6";
+day = "2026_7_10";
 basedir = "C:/Users/f008p47/Documents/Addition_Assay_Actin_Dynamics/";
 onedrive_path = "C:/Users/f008p47/OneDrive/dartmouth_work/"
 
@@ -25,9 +25,11 @@ for ( i =0; i < fileList.length; i++) {
 	     run("Delete Slice", "delete=channel");
 	     run("Canvas Size...", "width=1400 height=1400 position=Center zero");
 	     Stack.getDimensions(width, height, channels, slices, frames);
-	     quarterframe = floor(frames/4) + 1;
-	     Stack.setFrame(quarterframe);
-	     run("Enhance Contrast...", "saturated=0.40 normalize process_all");
+       for (f = 1; f<=frames; f++) {
+          Stack.setFrame(f);
+          run("Enhance Contrast", "saturated=0.4" normalize);
+       }
+       stack.setFrame(1);
 	     mainImageID = getImageID();
 	     mainTittle = getTitle();
 	     imageName = File.getName(mainTittle);

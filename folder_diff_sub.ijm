@@ -44,12 +44,12 @@ for ( i =0; i < fileList.length; i++) {
         run("Duplicate...", "title=firstDup duplicate");
         run("Duplicate...", "title=lastDup duplicate");
         selectWindow("firstDup") ;
-        for (i=1; i<=differenceNumber; i++) { //runs a loop
+        for (j=1; j<=differenceNumber; j++) { //runs a loop
           run("Delete Slice");    //changes the slice for each position in the loop
         }
         selectWindow("lastDup") ;
         run("Reverse");
-        for (i=1; i<=differenceNumber; i++) { //runs a loop
+        for (j=1; j<=differenceNumber; j++) { //runs a loop
           run("Delete Slice");    //changes the slice for each position in the loop
         }
         run("Reverse");
@@ -85,10 +85,10 @@ for ( i =0; i < fileList.length; i++) {
       if (channels == 1) {
         selectWindow("C1");
       } 
-
       rename(newFileName) ;
   saveAs("Tiff", outputDir + "/" + newFileName);
   run("Close All");
   }
+}
 showMessage("All files proccesed and saved to " + outputDir);
 
