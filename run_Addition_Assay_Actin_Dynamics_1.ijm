@@ -1,7 +1,7 @@
 //directories
-day = "2026_7_6";
+day = "2026_7_31";
 basedir = "C:/Users/f008p47/Documents/Addition_Assay_Actin_Dynamics/";
-onedrive_path = "C:/Users/f008p47/OneDrive/dartmouth_work/"
+onedrive_path = "C:/Users/f008p47/OneDrive/dartmouth_work/csvs/"
 
 
 //ROI arrays
@@ -28,8 +28,14 @@ for ( i =0; i < fileList.length; i++) {
 	     mainTittle = getTitle();
 	     imageName = File.getName(mainTittle);
 	     baseName = replace(imageName, ".nd2", "");
-	     if ( baseName == "A_FROG97-1_rGDB-GFP750nm_Utr594100nm_REP1") {
-	     	run("Canvas Size...", "width=1400 height=1400 position=Top-Right zero");
+	     if ( baseName == "A_FROG97-1_rGDB-GFP750nm_Utr594100nm_REP1" ) {
+	     	run("Canvas Size...", "width=1400 height=1400 position=Center-Left zero");
+	     }
+	     if (baseName == "D_FROG120_rGDB-GFP750nm_Utr594100nm_REP2") {
+	     run("Canvas Size...", "width=1400 height=1400 position=Center-Right zero");	
+	     }
+	     if ( baseName == "D_FROG153-2_rGDB-GFP750nm_Utr594100nm_rep1" ) {
+	     	run("Canvas Size...", "width=1400 height=1400 position=Top-Center zero");
 	     }
 	     else {
 	     	run("Canvas Size...", "width=1400 height=1400 position=Center zero");
@@ -38,8 +44,11 @@ for ( i =0; i < fileList.length; i++) {
          // enchance contrast for each frame individually and rejoin them
          
      setBatchMode(true);
-     for (f = 1; f <= frames; f++) {
+     startFrame = 1;
+     for (f = startFrame; f <= frames; f++) {
          selectWindow(mainTittle);
+         
+
          Stack.setFrame(f);
          
          
@@ -56,14 +65,15 @@ for ( i =0; i < fileList.length; i++) {
      
      // join all frames to a new stack
      run("Images to Stack", "name=["+mainTittle+"] title=norm_frame_ use");
-     setBatchMode(false);
        Stack.setFrame(1);
+       setBatchMode(false);
 	   for (r=0; r < 4; r++) {
 	     	 selectWindow(mainTittle);
 	         makeRectangle(xCoords[r], yCoords[r], 700, 700);
 	         run("Duplicate...", "title = [" + roiNames[r] + "] duplicate");
 	         duplicateTittle = getTitle();
 	     	 run("OrientationJ Vector Field", "tensor=5.0 gradient=0 radian=on vectorgrid=5 vectorscale=80.0 vectortype=0 vectoroverlay=on vectortable=on ");
+	     	 // it outputs degrees from -90 to 90 even if it says radian=on x.x
 	     	 csv_path = onedrive_path + day + "/" + baseName;
 			 selectWindow("OJ-Table-Vector-Field-");
 			 File.makeDirectory(csv_path);
